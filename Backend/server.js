@@ -16,6 +16,36 @@ const mailer = nodemailer.createTransport({
   },
 });
 
+async function sendContactEmails(userId, { subject, body, status }) {
+  const userDoc = await db.collection("users").doc(userId).get();
+  if (!userDoc.exists) throw new Error("User not found");
+
+  const { contacts } = userDoc.data();
+  if (!contacts?.length) throw new Error("No contacts found");
+
+  const formattedStatus = status ? ` (status: ${status})` : "";
+  const html = `<p>${body}${formattedStatus}</p>`;
+  const text = `${body}${formattedStatus}`;
+
+  await Promise.all(
+    contacts.map(async contact => {
+      if (!contact.email) {
+        console.warn(`Skipping contact without email: ${contact.firstName} ${contact.lastName}`);
+        return;
+      }
+
+      await mailer.sendMail({
+        to: contact.email,
+        from: process.env.EMAIL_FROM,
+        subject,
+        text,
+        html,
+      });
+    })
+  );
+}
+
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -148,41 +178,40 @@ app.post("/save-safezones", async (req, res) => {
 });
 
 app.post("/notify", async (req, res) => {
-  const { userId, message, status } = req.body;
-  if (!userId || !message) return res.status(400).json({ error: "User ID and message required" });
+  const { userId, message, status, subject = `Beacon update from ${userId}` } = req.body;
+  if (!userId || !message) {
+    return res.status(400).json({ error: "User ID and message required" });
+  }
 
   try {
-    const userDoc = await db.collection("users").doc(userId).get();
-    if (!userDoc.exists) return res.status(404).json({ error: "User not found" });
-
-    const { contacts } = userDoc.data();
-    if (!contacts || !contacts.length) return res.status(404).json({ error: "No contacts found" });
-
-    const formattedStatus = status ? ` (status: ${status})` : "";
-
-    await Promise.all(
-      contacts.map(async contact => {
-        if (!contact.email) {
-          console.warn(`Skipping contact without email: ${contact.firstName} ${contact.lastName}`);
-          return;
-        }
-
-        await mailer.sendMail({
-          to: contact.email,
-          from: process.env.EMAIL_FROM,
-          subject: `Beacon update from ${userId}`,
-          text: `${message}${formattedStatus}`,
-          html: `<p>${message}${formattedStatus}</p>`,
-        });
-      })
-    );
-
-    res.json({ success: true, notified: contacts.email });
+    await sendContactEmails(userId, { subject, body: message, status });
+    res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to notify contacts" });
+    res.status(500).json({ error: err.message || "Failed to notify contacts" });
   }
 });
+
+app.post("/notify-arrival", async (req, res) => {
+  const { userId, destination } = req.body;
+  if (!userId || !destination) {
+    return res.status(400).json({ error: "User ID and destination required" });
+  }
+
+  try {
+    const body = `I made it safely to ${destination}`;
+    await sendContactEmails(userId, {
+      subject: "Beacon arrival update",
+      body,
+      status: "arrived",
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Failed to send arrival update" });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
