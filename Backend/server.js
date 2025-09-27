@@ -24,7 +24,8 @@ async function geocodeLocation(query) {
 
   const top = data.results[0];
   return {
-    name: top.address_components[0]?.long_name || top.formatted_address || query,
+    userInput: query, //place the user typed
+    googleName: top.address_components[0]?.long_name || top.formatted_address || query,
     formattedAddress: top.formatted_address,
     location: top.geometry.location, // { lat, lng }
     placeId: top.place_id,
@@ -63,9 +64,27 @@ app.post("/save-contacts", async (req, res) => {
   const { userId, contacts } = req.body;
   if (!userId || !contacts) return res.status(400).json({ error: "User ID and contacts required" });
 
+  const contactsArray = Array.isArray(contacts) ? contacts : [contacts];
+  if (!contactsArray.length) {
+    return res.status(400).json({ error: "At least one contact required" });
+  }
+
+  const normalized = contactsArray.map(contact => {
+    if (typeof contact === "string") {
+      throw new Error("Use contact objects with firstName, lastName, phone");
+    }
+    const firstName = contact.firstName?.trim();
+    const lastName = contact.lastName?.trim();
+    const phone = contact.phone?.replace(/\D/g, "");
+    if (!firstName || !lastName || !phone) {
+      throw new Error("Contact must include firstName, lastName, and phone");
+    }
+    return { firstName, lastName, phone };
+  });
+
   try {
-    await db.collection("users").doc(userId).set({ contacts }, { merge: true });
-    res.json({ success: true, contacts });
+    await db.collection("users").doc(userId).set({ contacts: normalized }, { merge: true });
+    res.json({ success: true, contacts: normalized });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to save contacts" });
@@ -83,9 +102,24 @@ app.post("/save-safezones", async (req, res) => {
     const zonesArray = Array.isArray(safeZones) ? safeZones : [safeZones];
     const enriched = await Promise.all(
       zonesArray.map(async zone => {
-        if (typeof zone === "string") return geocodeLocation(zone);
-        if (zone.location?.lat && zone.location?.lng) return zone; // already geocoded
-        if (zone.name || zone.formattedAddress) return geocodeLocation(zone.name || zone.formattedAddress);
+        if (typeof zone === "string")
+          { 
+            const geo = await geocodeLocation(zone);
+            return { ...geo, name: zone, userInput: zone };
+          }
+        if (zone.location?.lat && zone.location?.lng) 
+          return {
+            ...zone, // already geocoded
+            googleName: zone.googleName || zone.name,
+            name: zone.name || zone.userInput,
+            userInput: zone.userInput || zone.name || zone.formattedAddress,
+        };
+        if (zone.name || zone.formattedAddress) {
+          const label = zone.name || zone.formattedAddress;
+          const geo = await geocodeLocation(label);
+          return { ...geo, name: zone.name || zone.userInput || 
+            label, userInput: zone.userInput || label, };
+        }
         throw new Error("Invalid safe zone entry");
       })
     );
