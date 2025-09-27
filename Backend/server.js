@@ -17,6 +17,20 @@ const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 app.use(cors());
 app.use(express.json());
 
+async function geocodeLocation(query) {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+  const { data } = await axios.get(url);
+  if (!data.results.length) throw new Error("No geocode match for safe zone");
+
+  const top = data.results[0];
+  return {
+    name: top.address_components[0]?.long_name || top.formatted_address || query,
+    formattedAddress: top.formatted_address,
+    location: top.geometry.location, // { lat, lng }
+    placeId: top.place_id,
+  };
+}
+
 app.post("/route", async (req, res) => {
   const { origin, destination } = req.body;
   if (!origin || !destination) return res.status(400).json({ error: "Origin and destination required" });
@@ -60,14 +74,27 @@ app.post("/save-contacts", async (req, res) => {
 
 app.post("/save-safezones", async (req, res) => {
   const { userId, safeZones } = req.body;
-  if (!userId || !safeZones) return res.status(400).json({ error: "User ID and safe zones required" });
+  if (!userId || !safeZones) {
+    return res.status(400).json({ error: "User ID and safe zones required" });
+  }
 
   try {
-    await db.collection("users").doc(userId).set({ safeZones }, { merge: true });
-    res.json({ success: true, safeZones });
+    // Normalize to array
+    const zonesArray = Array.isArray(safeZones) ? safeZones : [safeZones];
+    const enriched = await Promise.all(
+      zonesArray.map(async zone => {
+        if (typeof zone === "string") return geocodeLocation(zone);
+        if (zone.location?.lat && zone.location?.lng) return zone; // already geocoded
+        if (zone.name || zone.formattedAddress) return geocodeLocation(zone.name || zone.formattedAddress);
+        throw new Error("Invalid safe zone entry");
+      })
+    );
+
+    await db.collection("users").doc(userId).set({ safeZones: enriched }, { merge: true });
+    res.json({ success: true, safeZones: enriched });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to save safe zones" });
+    res.status(500).json({ error: err.message || "Failed to save safe zones" });
   }
 });
 
