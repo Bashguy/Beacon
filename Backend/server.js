@@ -3,7 +3,7 @@ const cors = require("cors");
 const axios = require("axios");
 require("dotenv").config();
 const admin = require("firebase-admin");
-const serviceAccount = require("./firebaseServiceAccount.json");
+const serviceAccount = require("./serviceAccount.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -30,10 +30,6 @@ app.post("/route", async (req, res) => {
     const leg = response.data.routes[0].legs[0];
     const steps = leg.steps.map(step => ({
       instruction: step.html_instructions.replace(/<[^>]*>/g, ''),
-      start_lat: step.start_location.lat,
-      start_lng: step.start_location.lng,
-      end_lat: step.end_location.lat,
-      end_lng: step.end_location.lng,
       distance: step.distance.text,
       duration: step.duration.text
     }));
