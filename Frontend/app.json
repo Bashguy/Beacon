@@ -4,7 +4,7 @@
     "slug": "Beacon",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/beacon-logo.png",
     "scheme": "beacon",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -23,19 +23,20 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "icon": "./assets/images/beacon-logo.png"
     },
     "plugins": [
       "expo-router",
-      [
+        [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/beacon-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#252D1F",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#252D1F"
           }
         }
       ]
