@@ -16,12 +16,13 @@ app.get("/", (req, res) => {
 
 app.post("/route", async (req, res) => {
   const { origin, destination } = req.body;
+
   if (!origin || !destination) {
     return res.status(400).json({ error: "Origin and destination required" });
   }
 
   try {
-    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&key=${apiKey}`;
+    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=walking&key=${apiKey}`;
     const response = await axios.get(url);
 
     if (!response.data.routes.length) {
@@ -29,10 +30,19 @@ app.post("/route", async (req, res) => {
     }
 
     const leg = response.data.routes[0].legs[0];
+
     const routeInfo = {
       distance: leg.distance.text,
       duration: leg.duration.text,
-      steps: leg.steps.map(step => step.html_instructions.replace(/<[^>]*>/g, '')), // plain text
+      steps: leg.steps.map(step => ({
+        instruction: step.html_instructions.replace(/<[^>]*>/g, ''), // plain text
+        start_lat: step.start_location.lat,
+        start_lng: step.start_location.lng,
+        end_lat: step.end_location.lat,
+        end_lng: step.end_location.lng,
+        distance: step.distance.text,
+        duration: step.duration.text
+      }))
     };
 
     res.json(routeInfo);
