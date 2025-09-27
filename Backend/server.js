@@ -4,6 +4,17 @@ const axios = require("axios");
 require("dotenv").config();
 const admin = require("firebase-admin");
 const serviceAccount = require("./serviceAccount.json");
+const nodemailer = require("nodemailer");
+
+const mailer = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT) || 587,
+  secure: process.env.EMAIL_SECURE === "true",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -69,17 +80,21 @@ app.post("/save-contacts", async (req, res) => {
     return res.status(400).json({ error: "At least one contact required" });
   }
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const normalized = contactsArray.map(contact => {
     if (typeof contact === "string") {
-      throw new Error("Use contact objects with firstName, lastName, phone");
+      throw new Error("Use contact objects with firstName, lastName, phone, email");
     }
     const firstName = contact.firstName?.trim();
     const lastName = contact.lastName?.trim();
     const phone = contact.phone?.replace(/\D/g, "");
-    if (!firstName || !lastName || !phone) {
-      throw new Error("Contact must include firstName, lastName, and phone");
+    //ensure email is in standard email format
+    const email = contact.email?.trim().toLowerCase();
+    if (!email || !EMAIL_REGEX.test(email)) {
+      throw new Error("Contact must include a valid email address");
     }
-    return { firstName, lastName, phone };
+    return { firstName, lastName, phone, email };
   });
 
   try {
@@ -143,11 +158,26 @@ app.post("/notify", async (req, res) => {
     const { contacts } = userDoc.data();
     if (!contacts || !contacts.length) return res.status(404).json({ error: "No contacts found" });
 
-    contacts.forEach(contact => {
-      console.log(`Notify ${contact}: ${message} (status: ${status || "update"})`);
-    });
+    const formattedStatus = status ? ` (status: ${status})` : "";
 
-    res.json({ success: true });
+    await Promise.all(
+      contacts.map(async contact => {
+        if (!contact.email) {
+          console.warn(`Skipping contact without email: ${contact.firstName} ${contact.lastName}`);
+          return;
+        }
+
+        await mailer.sendMail({
+          to: contact.email,
+          from: process.env.EMAIL_FROM,
+          subject: `Beacon update from ${userId}`,
+          text: `${message}${formattedStatus}`,
+          html: `<p>${message}${formattedStatus}</p>`,
+        });
+      })
+    );
+
+    res.json({ success: true, notified: contacts.email });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to notify contacts" });
