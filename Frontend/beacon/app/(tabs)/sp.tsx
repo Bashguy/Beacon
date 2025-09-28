@@ -50,9 +50,9 @@ export default function SafePlacesScreen() {
         <Pressable
           className="absolute right-4 top-4"
           accessibilityLabel="Close"
-          onPress={() => router.back()}
+          onPress={() => router.replace("/map")}
         >
-          <Text className="text-xl text-[#B8A792]">X</Text>
+          <Text className="text-3xl text-[#B8A792]">X</Text>
         </Pressable>
 
         {/* Header icon */}

@@ -46,9 +46,9 @@ export default function ContactsScreen() {
     <SafeAreaView className="flex-1 bg-[#2A332A] items-center justify-center">
       <View className="w-11/12 h-[90%] bg-[#F5F1E9] rounded-3xl p-6 relative">
         <Pressable
-          className="absolute right-4 top-4"
+          className="absolute right-4 top-4 "
           accessibilityLabel="Close"
-          onPress={() => router.back()}
+          onPress={() => router.replace("/map")}
         >
           <Text className="text-xl text-[#B8A792]">X</Text>
         </Pressable>
