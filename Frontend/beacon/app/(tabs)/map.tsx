@@ -17,7 +17,7 @@ import MapView, {
   MapPressEvent,
 } from "react-native-maps";
 import * as Location from "expo-location";
-import { db } from "../../firebase";
+import { db } from "../firebase";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import Constants from "expo-constants";
 import {
@@ -26,6 +26,7 @@ import {
 } from "react-native-google-places-autocomplete";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Battery from "expo-battery";
+import { useRouter } from "expo-router"; 
 
 // --- Type Definitions ---
 type LatLng = { latitude: number; longitude: number };
@@ -182,34 +183,51 @@ export default function MapScreen() {
     );
   };
 
-  const beginJourney = useCallback(async () => {
-  if (!hasBoth) return;
-
-  setTrip((t) => ({ ...t, began: true }));
+ const beginJourney = useCallback(async () => {
+  if (!hasBoth) return; // Nothing to do if start/dest missing
 
   try {
-    const res = await fetch("http://10.0.0.223:3000/notify-start", {
+    await setDoc(
+      TRIP_DOC,
+      { journeyActive: true },
+      { merge: true }
+    );
+
+    setTrip((t) => ({ ...t, journeyActive: true }));
+
+    const res = await fetch("http://10.0.0.162:3000/notify-start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: "testemail", 
-        destination: trip.dest ? `${trip.dest.latitude},${trip.dest.longitude}` : "Unknown",
-        eta: trip.etaMinutes ? `${trip.etaMinutes} minutes` : "Unknown",
+        userId: "testemail", // Replace with real logged-in user ID
+        destination: trip.dest
+          ? `${trip.dest.latitude},${trip.dest.longitude}`
+          : "Unknown",
+        eta: trip.etaMinutes
+          ? `${trip.etaMinutes} minutes`
+          : "Unknown",
       }),
     });
 
     const data = await res.json();
     if (!res.ok) {
       console.error("Failed to notify contacts:", data.error);
+      Alert.alert(
+        "Notification error",
+        "Could not notify your contacts, but journey started."
+      );
     }
   } catch (err) {
-    console.error("Error notifying contacts:", err);
+    console.error("Error beginning journey:", err);
+    Alert.alert("Journey error", "Could not start the journey. Try again.");
   }
-}, [hasBoth, setTrip, trip]);
+}, [hasBoth, trip]);
 
+const router = useRouter();
 
   const endJourney = async () => {
     await setDoc(TRIP_DOC, { journeyActive: false }, { merge: true });
+    router.replace("/arrival");
   };
 
   const sendBeacon = () => {
@@ -560,7 +578,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryBtnText: { color: "#F5F1E9", fontSize: 18, fontWeight: "700" },
+  primaryBtnText: { color: "#F5F1E9", fontSize: 18, fontWeight: "600" },
   btnDisabled: { opacity: 0.5 },
   overlay: {
     flex: 1,

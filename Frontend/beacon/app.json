@@ -1,20 +1,21 @@
 {
   "expo": {
-    "name": "beacon",
+    "name": "",
     "slug": "beacon",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/beacon-logo.png",
+    "icon": "./assets/images/splash-icon2.png",
     "scheme": "beacon",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/beacon-logo.png",
+      "image": "./assets/images/splash-icon2.png",
       "resizeMode": "contain",
       "backgroundColor": "#252D1F"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lsvrionis.beacon"
     },
     "android": {
       "adaptiveIcon": {
@@ -43,7 +44,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/beacon-logo.png",
+          "image": "./assets/images/splash-icon2.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#252D1F",
@@ -54,7 +55,14 @@
       ]
     ],
     "extra": {
-      "googleMapsKey": "AIzaSyCAh6DlzEVFqQ0DZsa3x1rXdDpTxIZxODQ"
+      "googleWebClientId": "1062106947199-vr4p1i164e9ofkk3ofl7oc1dkols03b3.apps.googleusercontent.com",
+      "googleIosClientId": "1062106947199-g09rkihu0ijucf59nh7vd40m1uuoe4j9.apps.googleusercontent.com",
+      "googleAndroidClientId": "1062106947199-hc2a45gk2gh2mnu5i7h1nkctvu04edhe.apps.googleusercontent.com",
+      "googleMapsKey": "AIzaSyCAh6DlzEVFqQ0DZsa3x1rXdDpTxIZxODQ",
+      "router": {},
+      "eas": {
+        "projectId": "9da60a11-0f10-4fef-a05d-ddcb655ca16e"
+      }
     },
     "experiments": {
       "typedRoutes": true,
