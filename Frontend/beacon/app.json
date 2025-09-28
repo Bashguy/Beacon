@@ -55,6 +55,9 @@
       ]
     ],
     "extra": {
+      "googleWebClientId": "1062106947199-vr4p1i164e9ofkk3ofl7oc1dkols03b3.apps.googleusercontent.com",
+      "googleIosClientId": "1062106947199-g09rkihu0ijucf59nh7vd40m1uuoe4j9.apps.googleusercontent.com",
+      "googleAndroidClientId": "1062106947199-hc2a45gk2gh2mnu5i7h1nkctvu04edhe.apps.googleusercontent.com",
       "googleMapsKey": "AIzaSyCAh6DlzEVFqQ0DZsa3x1rXdDpTxIZxODQ",
       "router": {},
       "eas": {
