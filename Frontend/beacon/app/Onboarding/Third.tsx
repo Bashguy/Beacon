@@ -10,7 +10,7 @@ export default function Third() {
       {/* Close Button */}
       <TouchableOpacity
         style={styles.closeButton}
-        onPress={() => router.replace("../(tabs)/index.tsx")}
+        onPress={() => router.replace("/login")}
       >
         <Ionicons name="close" size={28} color="#fff" />
       </TouchableOpacity>
@@ -25,20 +25,25 @@ export default function Third() {
 
       {/* Demo Form */}
       <View style={styles.card}>
-        <TextInput
-          placeholder="Starting Location"
-          placeholderTextColor="#aaa"
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Destination"
-          placeholderTextColor="#aaa"
-          style={styles.input}
-        />
-        <TouchableOpacity style={styles.demoButton}>
-          <Text style={styles.demoButtonText}>Begin Journey</Text>
-        </TouchableOpacity>
-      </View>
+  <TextInput
+    placeholder="Starting Location"
+    placeholderTextColor="#aaa"
+    style={styles.input}
+    editable={false} // not editable
+  />
+  <TextInput
+    placeholder="Destination"
+    placeholderTextColor="#aaa"
+    style={styles.input}
+    editable={false} // not editable
+  />
+  <TouchableOpacity style={[styles.demoButton, { backgroundColor: "#2C3223aa" }]} disabled>
+    <Text style={[styles.demoButtonText, { color: "#ddd" }]}>
+      Begin Journey
+    </Text>
+  </TouchableOpacity>
+</View>
+
 
       {/* Explanation */}
       <Text style={styles.body}>

@@ -1,103 +1,100 @@
-// Frontend/beacon/app/(tabs)/login.tsx
-import { useState } from "react";
-import {
-  Alert,
-  Button,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TextInput,
-  View,
-  ActivityIndicator,
-} from "react-native";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { useRouter } from "expo-router";
 
-export default function LoginScreen() {
+export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSignIn = async () => {
-    if (!email || !password) {
-      Alert.alert("Missing info", "Enter both email and password.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const credential = await signInWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
-      );
-
-      // Signed in — credential.user has uid, email, etc.
-      console.log("Signed in:", credential.user.uid);
-      Alert.alert("Welcome back!", `Signed in as ${credential.user.email}`);
-      // TODO: navigate to the main screen or update global auth state
-      router.replace("/(tabs)");
-    } catch (error) {
-      console.error("Login failed:", error);
-      const message =
-        error instanceof Error ? error.message : "Unable to sign in.";
-      Alert.alert("Login failed", message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.select({ ios: "padding" })}
-    >
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
+    <View style={styles.container}>
+      {/* Logo + Title */}
+      <View style={styles.header}>
+        <Image
+          source={require("../assets/images/beacon-logo3.png")}
+          style={styles.logo}
+          resizeMode="contain"
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <Button
-          title={loading ? "Signing in…" : "Sign In"}
-          onPress={handleSignIn}
-          disabled={loading}
-        />
-        {loading && <ActivityIndicator style={{ marginTop: 12 }} />}
+        <Text style={styles.title}>Beacon</Text>
       </View>
-    </KeyboardAvoidingView>
+
+      {/* Welcome text */}
+      <Text style={styles.welcome}>Welcome!</Text>
+
+      {/* Google Sign-In Button */}
+      <TouchableOpacity style={styles.googleButton}>
+        <Text style={styles.googleText}>Sign in with Google</Text>
+      </TouchableOpacity>
+
+      {/* Continue Button at bottom */}
+      <TouchableOpacity style={styles.continueButton}
+      onPress={() => router.replace("../(tabs)/index.tsx")}>
+        <Text style={styles.continueText}>Continue</Text>
+        
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    backgroundColor: "#101418",
+    backgroundColor: "#FFF9F0",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingTop: 100,
+    paddingHorizontal: 20,
   },
-  form: {
-    gap: 16,
-    backgroundColor: "#1c2229",
-    padding: 24,
-    borderRadius: 12,
+  header: {
+    alignItems: "center",
+    marginBottom: 40,
   },
-  input: {
-    height: 48,
-    paddingHorizontal: 12,
-    backgroundColor: "#fff",
+  logo: {
+    width: 170,
+    height: 170,
+    marginBottom: 10,
+    top: 30,
+    left: 8,
+  },
+  title: {
+    fontSize: 38,
+    fontWeight: "700",
+    color: "#252D1F",
+    top: -30,
+  },
+  welcome: {
+    fontSize: 25,
+    fontWeight: "600",
+    color: "#252D1F",
+    textDecorationLine: "underline",
+    marginBottom: 40,
+  },
+  googleButton: {
+    backgroundColor: "#FFFDFA",
+    borderColor: "#1E1E1E",
+    borderWidth: 1,
     borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    width: "90%",
+    alignItems: "center",
+    marginBottom: 20,
+    top: -12,
+  },
+  googleText: {
+    fontSize: 20,
+    fontWeight: "500",
+    color: "#252D1F",
+  },
+  continueButton: {
+    backgroundColor: "#252D1F",
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: "center",
+    position: "absolute",
+    bottom: 130,
+    width: "90%",
+  },
+  continueText: {
+    color: "#FFF9F0",
+    fontSize: 23,
+    fontWeight: "600",
   },
 });

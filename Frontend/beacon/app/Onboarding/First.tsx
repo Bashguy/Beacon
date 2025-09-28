@@ -10,7 +10,7 @@ export default function First() {
       {/* Close Button */}
       <TouchableOpacity
         style={styles.closeButton}
-        onPress={() => router.replace("../(tabs)/index.tsx")}
+        onPress={() => router.replace("/login")}
       >
         <Ionicons name="close" size={28} color="#fff" />
       </TouchableOpacity>

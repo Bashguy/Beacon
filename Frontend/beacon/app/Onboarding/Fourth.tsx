@@ -10,7 +10,7 @@ export default function Fourth() {
       {/* Close Button */}
       <TouchableOpacity
         style={styles.closeButton}
-        onPress={() => router.replace("../(tabs)/index.tsx")}
+        onPress={() => router.replace("/login")}
       >
         <Ionicons name="close" size={28} color="#fff" />
       </TouchableOpacity>
@@ -24,33 +24,43 @@ export default function Fourth() {
       </View>
 
       {/* First Card */}
-      <View style={styles.cardDark}>
-        <Text style={styles.cardTitle}>Are you okay?</Text>
-        <TouchableOpacity style={styles.lightButton}>
-          <Text style={styles.lightButtonText}>Yes, all good.</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.lightButton}>
-          <Text style={styles.lightButtonText}>No, send a beacon.</Text>
-        </TouchableOpacity>
-      </View>
+<View style={styles.cardDark}>
+  <Text style={styles.cardTitle}>Are you okay?</Text>
+  <TouchableOpacity style={[styles.lightButton, { backgroundColor: "#F5F1E9cc" }]} disabled>
+    <Text style={[styles.lightButtonText, { color: "#666" }]}>
+      Yes, all good.
+    </Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={[styles.lightButton, { backgroundColor: "#F5F1E9cc" }]} disabled>
+    <Text style={[styles.lightButtonText, { color: "#666" }]}>
+      No, send a beacon.
+    </Text>
+  </TouchableOpacity>
+</View>
 
       <Text style={styles.body}>
         Every few minutes, the{"\n"}app will check in on you.
       </Text>
 
       {/* Second Card */}
-      <View style={styles.cardLight}>
-        <Text style={styles.cardTitleDark}>Send to who?</Text>
-        <TouchableOpacity style={styles.lightButton}>
-          <Text style={styles.lightButtonTextDark}>Emergency Contacts</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.lightButton}>
-          <Text style={styles.lightButtonTextDark}>SOS - Police</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.darkButton}>
-          <Text style={styles.darkButtonText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
+<View style={styles.cardLight}>
+  <Text style={styles.cardTitleDark}>Send to who?</Text>
+  <TouchableOpacity style={[styles.lightButton, { backgroundColor: "#fff5" }]} disabled>
+    <Text style={[styles.lightButtonTextDark, { color: "#999" }]}>
+      Emergency Contacts
+    </Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={[styles.lightButton, { backgroundColor: "#fff5" }]} disabled>
+    <Text style={[styles.lightButtonTextDark, { color: "#999" }]}>
+      SOS - Police
+    </Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={[styles.darkButton, { backgroundColor: "#2C322377" }]} disabled>
+    <Text style={[styles.darkButtonText, { color: "#bbb" }]}>
+      Cancel
+    </Text>
+  </TouchableOpacity>
+</View>
 
       <Text style={styles.body}>
         If you’re feeling unsafe,{"\n"}send a beacon.
@@ -131,6 +141,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "100%",
     alignItems: "center",
+    borderColor: "#5D6B4D",
+    borderWidth: 1,
   },
   lightButtonText: {
     color: "#2C3223",
@@ -139,6 +151,7 @@ const styles = StyleSheet.create({
   lightButtonTextDark: {
     color: "#2C3223",
     fontSize: 15,
+  
   },
   darkButton: {
     backgroundColor: "#2C3223",
@@ -159,6 +172,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 24,
     marginBottom: 20,
+    top: -7,
   },
    nextButton: {
     backgroundColor: "#2C3223",
