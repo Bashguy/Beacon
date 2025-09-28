@@ -16,6 +16,21 @@ const mailer = nodemailer.createTransport({
   },
 });
 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: process.env.FIREBASE_DB_URL,
+});
+
+const rtdb = admin.database();
+const statusRef = rtdb.ref("deviceStatus");
+const db = admin.firestore();
+const app = express();
+const PORT = process.env.PORT || 3000;
+const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+app.use(cors());
+app.use(express.json());
+
 async function sendContactEmails(userId, { subject, body, status }) {
   const userDoc = await db.collection("users").doc(userId).get();
   if (!userDoc.exists) throw new Error("User not found");
@@ -45,19 +60,6 @@ async function sendContactEmails(userId, { subject, body, status }) {
   );
 }
 
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-const db = admin.firestore();
-const app = express();
-const PORT = process.env.PORT || 3000;
-const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-
-app.use(cors());
-app.use(express.json());
-
 async function geocodeLocation(query) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
   const { data } = await axios.get(url);
@@ -81,10 +83,10 @@ function normalizeLocation(input) {
   throw new Error("Invalid location format. Provide a string or { lat, lng }.");
 }
 
-async function fetchEta(origin, destination, mode = "walking") {
+async function fetchEta(origin, destination) {
   const originParam = encodeURIComponent(normalizeLocation(origin));
   const destinationParam = encodeURIComponent(normalizeLocation(destination));
-  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originParam}&destination=${destinationParam}&mode=${mode}&key=${apiKey}`;
+  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originParam}&destination=${destinationParam}&mode=walking&key=${apiKey}`;
 
   const { data } = await axios.get(url);
   if (!data.routes.length) throw new Error("No route found");
@@ -270,13 +272,13 @@ app.post("/notify-arrival", async (req, res) => {
 });
 
 app.post("/notify-status", async (req, res) => {
-  const { userId, origin, destination, mode = "walking" } = req.body;
+  const { userId, origin, destination} = req.body;
   if (!userId || !origin || !destination) {
     return res.status(400).json({ error: "User ID, origin, and destination required" });
   }
 
   try {
-    const etaInfo = await fetchEta(origin, destination, mode);
+    const etaInfo = await fetchEta(origin, destination);
     const body = `Current ETA to ${destination}: ${etaInfo.etaDisplay} (${etaInfo.durationText} remaining).`;
 
     await sendContactEmails(userId, {
@@ -291,6 +293,34 @@ app.post("/notify-status", async (req, res) => {
     res.status(500).json({ error: err.message || "Failed to send status update" });
   }
 });
+
+//waiting for frontend react native expo battery status 
+statusRef.on("child_changed", async snapshot => {
+  const userId = snapshot.key;
+  const status = snapshot.child("state").val();
+  if (status !== "dead") return;
+
+  const battery = snapshot.child("battery").val();
+  const address = snapshot.child("address").val();
+  
+  const bodyLines = [
+    "My phone shut off unexpectedly.",
+    battery != null ? `Battery: ${(battery * 100).toFixed(0)}%` : null,
+    address ? `Last reported location: ${address}` : null,
+  ].filter(Boolean);
+
+  try {
+    await sendContactEmails(userId, {
+      subject: `Beacon phone-off alert for ${userId}`,
+      body: bodyLines.join("\n"),
+      status: "device offline",
+    });
+    console.log(`Sent phone-dead alert for user ${userId}`);
+  } catch (err) {
+    console.error(`Failed to send phone-dead alert for ${userId}`, err);
+  }
+});
+
 
 
 
