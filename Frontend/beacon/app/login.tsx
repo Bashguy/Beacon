@@ -25,7 +25,7 @@ export default function Login() {
 
       {/* Continue Button at bottom */}
       <TouchableOpacity style={styles.continueButton}
-      onPress={() => router.replace("../(tabs)/index.tsx")}>
+      onPress={() => router.replace("../(tabs)/map")}>
         <Text style={styles.continueText}>Continue</Text>
         
       </TouchableOpacity>
