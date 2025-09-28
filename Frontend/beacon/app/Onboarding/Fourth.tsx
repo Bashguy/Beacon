@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function Fifth() {
+export default function Fourth() {
   const router = useRouter();
 
   return (

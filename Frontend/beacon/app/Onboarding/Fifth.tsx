@@ -26,7 +26,7 @@ export default function Fifth() {
       {/* Begin Button */}
       <TouchableOpacity
         style={styles.beginButton}
-        onPress={() => router.replace("../(tabs)/login.tsx")}
+        onPress={() => router.replace("/login")}
       >
         <Text style={styles.beginText}>Begin</Text>
       </TouchableOpacity>

@@ -14,10 +14,6 @@
     "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",
-<<<<<<< HEAD
-    "@react-native-firebase/app": "^23.4.0",
-=======
->>>>>>> 36bf3103f0ff38b0b6671542db07f35ddf85f357
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
@@ -36,30 +32,16 @@
     "expo-system-ui": "~6.0.7",
     "expo-web-browser": "~15.0.7",
     "firebase": "^12.3.0",
-<<<<<<< HEAD
-    "lucide-react-native": "^0.544.0",
     "nativewind": "^4.2.1",
-    "prettier-plugin-tailwindcss": "^0.5.14",
-=======
-    "nativewind": "^4.2.1",
->>>>>>> 36bf3103f0ff38b0b6671542db07f35ddf85f357
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.4",
     "react-native-gesture-handler": "~2.28.0",
-<<<<<<< HEAD
-    "react-native-get-random-values": "^1.11.0",
-    "react-native-google-places-autocomplete": "^2.5.7",
-    "react-native-maps": "1.20.1",
-    "react-native-reanimated": "~3.17.4",
-    "react-native-safe-area-context": "^5.4.0",
-=======
     "react-native-get-random-values": "~1.11.0",
     "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-maps": "1.20.1",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
->>>>>>> 36bf3103f0ff38b0b6671542db07f35ddf85f357
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
     "react-native-web": "~0.21.0",
