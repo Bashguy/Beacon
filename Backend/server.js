@@ -73,6 +73,34 @@ async function geocodeLocation(query) {
   };
 }
 
+function normalizeLocation(input) {
+  if (typeof input === "string") return input;
+  if (input && typeof input === "object" && input.lat != null && input.lng != null) {
+    return `${input.lat},${input.lng}`;
+  }
+  throw new Error("Invalid location format. Provide a string or { lat, lng }.");
+}
+
+async function fetchEta(origin, destination, mode = "walking") {
+  const originParam = encodeURIComponent(normalizeLocation(origin));
+  const destinationParam = encodeURIComponent(normalizeLocation(destination));
+  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originParam}&destination=${destinationParam}&mode=${mode}&key=${apiKey}`;
+
+  const { data } = await axios.get(url);
+  if (!data.routes.length) throw new Error("No route found");
+
+  const leg = data.routes[0].legs[0];
+  const durationSeconds = leg.duration.value;
+  const arrival = new Date(Date.now() + durationSeconds * 1000);
+
+  return {
+    distanceText: leg.distance.text,
+    durationText: leg.duration.text,
+    etaDisplay: arrival.toLocaleString(),
+  };
+}
+
+
 app.post("/route", async (req, res) => {
   const { origin, destination } = req.body;
   if (!origin || !destination) return res.status(400).json({ error: "Origin and destination required" });
@@ -84,10 +112,14 @@ app.post("/route", async (req, res) => {
     if (!response.data.routes.length) return res.status(404).json({ error: "No route found" });
 
     const leg = response.data.routes[0].legs[0];
+    const etaSeconds = leg.duration.value; // seconds
+    const etaDate = new Date(Date.now() + etaSeconds * 1000);
+    const eta = etaDate.toLocaleString(); // or format however you like
     const steps = leg.steps.map(step => ({
       instruction: step.html_instructions.replace(/<[^>]*>/g, ''),
       distance: step.distance.text,
-      duration: step.duration.text
+      duration: step.duration.text,
+      eta
     }));
 
     res.json({
@@ -192,6 +224,31 @@ app.post("/notify", async (req, res) => {
   }
 });
 
+app.post("/notify-start", async (req, res) => {
+  const { userId, destination, eta } = req.body;
+  if (!userId || !destination || !eta) {
+    return res
+      .status(400)
+      .json({ error: "User ID, destination, and ETA required" });
+  }
+
+  try {
+    const body = `I'm heading to ${destination} with an ETA of ${eta}.`;
+    await sendContactEmails(userId, {
+      subject: "Beacon journey started",
+      body,
+      status: "en route",
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: err.message || "Failed to send journey start update" });
+  }
+});
+
+
 app.post("/notify-arrival", async (req, res) => {
   const { userId, destination } = req.body;
   if (!userId || !destination) {
@@ -211,6 +268,30 @@ app.post("/notify-arrival", async (req, res) => {
     res.status(500).json({ error: err.message || "Failed to send arrival update" });
   }
 });
+
+app.post("/notify-status", async (req, res) => {
+  const { userId, origin, destination, mode = "walking" } = req.body;
+  if (!userId || !origin || !destination) {
+    return res.status(400).json({ error: "User ID, origin, and destination required" });
+  }
+
+  try {
+    const etaInfo = await fetchEta(origin, destination, mode);
+    const body = `Current ETA to ${destination}: ${etaInfo.etaDisplay} (${etaInfo.durationText} remaining).`;
+
+    await sendContactEmails(userId, {
+      subject: "Beacon status update",
+      body,
+      status: "en route",
+    });
+
+    res.json({ success: true, eta: etaInfo });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Failed to send status update" });
+  }
+});
+
 
 
 app.listen(PORT, () => {
