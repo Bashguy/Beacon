@@ -185,16 +185,14 @@ export default function MapScreen() {
   const beginJourney = useCallback(async () => {
   if (!hasBoth) return;
 
-  // Mark journey as started in Firestore
   setTrip((t) => ({ ...t, began: true }));
 
   try {
-    // Make backend call to notify contacts
-    const res = await fetch("http://<your-server>/notify-start", {
+    const res = await fetch("http://10.0.0.223:3000/notify-start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: "sameer123", // TODO: replace with logged-in user’s ID
+        userId: "testemail", 
         destination: trip.dest ? `${trip.dest.latitude},${trip.dest.longitude}` : "Unknown",
         eta: trip.etaMinutes ? `${trip.etaMinutes} minutes` : "Unknown",
       }),
