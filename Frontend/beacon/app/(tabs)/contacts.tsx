@@ -65,8 +65,8 @@ export default function ContactsScreen() {
 
         {/* Content */}
         {contacts.length === 0 ? (
-          <View className="flex-1 items-center justify-center">
-            <Text className="text-center text-base text-black/40 px-6">
+          <View className="flex-1 items-center justify-center ">
+            <Text className="text-center text-base text-black/40 px-6 -translate-y-20">
               Your contact list is empty.{`\n`}Contacts you add will appear
               here.
             </Text>

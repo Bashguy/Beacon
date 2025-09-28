@@ -67,7 +67,7 @@ export default function SafePlacesScreen() {
 
         {/* Content */}
         {places.length === 0 ? (
-          <View className="flex-1 items-center justify-center">
+          <View className="flex-1 items-center justify-center -translate-y-20">
             <Text className="text-center text-base text-black/40 px-6">
               Your safe places list is empty.{`\n`}Safe places you add will
               appear here.
