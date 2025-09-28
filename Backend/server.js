@@ -43,9 +43,11 @@ async function sendContactEmails(userId, { subject, body, status }) {
   const text = `${body}${formattedStatus}`;
 
   await Promise.all(
-    contacts.map(async contact => {
+    contacts.map(async (contact) => {
       if (!contact.email) {
-        console.warn(`Skipping contact without email: ${contact.firstName} ${contact.lastName}`);
+        console.warn(
+          `Skipping contact without email: ${contact.firstName} ${contact.lastName}`
+        );
         return;
       }
 
@@ -61,14 +63,17 @@ async function sendContactEmails(userId, { subject, body, status }) {
 }
 
 async function geocodeLocation(query) {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+    query
+  )}&key=${apiKey}`;
   const { data } = await axios.get(url);
   if (!data.results.length) throw new Error("No geocode match for safe zone");
 
   const top = data.results[0];
   return {
     userInput: query, //place the user typed
-    googleName: top.address_components[0]?.long_name || top.formatted_address || query,
+    googleName:
+      top.address_components[0]?.long_name || top.formatted_address || query,
     formattedAddress: top.formatted_address,
     location: top.geometry.location, // { lat, lng }
     placeId: top.place_id,
@@ -77,7 +82,12 @@ async function geocodeLocation(query) {
 
 function normalizeLocation(input) {
   if (typeof input === "string") return input;
-  if (input && typeof input === "object" && input.lat != null && input.lng != null) {
+  if (
+    input &&
+    typeof input === "object" &&
+    input.lat != null &&
+    input.lng != null
+  ) {
     return `${input.lat},${input.lng}`;
   }
   throw new Error("Invalid location format. Provide a string or { lat, lng }.");
@@ -102,32 +112,37 @@ async function fetchEta(origin, destination) {
   };
 }
 
-
 app.post("/route", async (req, res) => {
   const { origin, destination } = req.body;
-  if (!origin || !destination) return res.status(400).json({ error: "Origin and destination required" });
+  if (!origin || !destination)
+    return res.status(400).json({ error: "Origin and destination required" });
 
   try {
-    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=walking&key=${apiKey}`;
+    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+      origin
+    )}&destination=${encodeURIComponent(
+      destination
+    )}&mode=walking&key=${apiKey}`;
     const response = await axios.get(url);
 
-    if (!response.data.routes.length) return res.status(404).json({ error: "No route found" });
+    if (!response.data.routes.length)
+      return res.status(404).json({ error: "No route found" });
 
     const leg = response.data.routes[0].legs[0];
     const etaSeconds = leg.duration.value; // seconds
     const etaDate = new Date(Date.now() + etaSeconds * 1000);
     const eta = etaDate.toLocaleString(); // or format however you like
-    const steps = leg.steps.map(step => ({
-      instruction: step.html_instructions.replace(/<[^>]*>/g, ''),
+    const steps = leg.steps.map((step) => ({
+      instruction: step.html_instructions.replace(/<[^>]*>/g, ""),
       distance: step.distance.text,
       duration: step.duration.text,
-      eta
+      eta,
     }));
 
     res.json({
       distance: leg.distance.text,
       duration: leg.duration.text,
-      steps
+      steps,
     });
   } catch (err) {
     console.error(err.response?.data || err.message);
@@ -137,7 +152,8 @@ app.post("/route", async (req, res) => {
 
 app.post("/save-contacts", async (req, res) => {
   const { userId, contacts } = req.body;
-  if (!userId || !contacts) return res.status(400).json({ error: "User ID and contacts required" });
+  if (!userId || !contacts)
+    return res.status(400).json({ error: "User ID and contacts required" });
 
   const contactsArray = Array.isArray(contacts) ? contacts : [contacts];
   if (!contactsArray.length) {
@@ -146,9 +162,11 @@ app.post("/save-contacts", async (req, res) => {
 
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const normalized = contactsArray.map(contact => {
+  const normalized = contactsArray.map((contact) => {
     if (typeof contact === "string") {
-      throw new Error("Use contact objects with firstName, lastName, phone, email");
+      throw new Error(
+        "Use contact objects with firstName, lastName, phone, email"
+      );
     }
     const firstName = contact.firstName?.trim();
     const lastName = contact.lastName?.trim();
@@ -162,7 +180,10 @@ app.post("/save-contacts", async (req, res) => {
   });
 
   try {
-    await db.collection("users").doc(userId).set({ contacts: normalized }, { merge: true });
+    await db
+      .collection("users")
+      .doc(userId)
+      .set({ contacts: normalized }, { merge: true });
     res.json({ success: true, contacts: normalized });
   } catch (err) {
     console.error(err);
@@ -180,30 +201,35 @@ app.post("/save-safezones", async (req, res) => {
     // Normalize to array
     const zonesArray = Array.isArray(safeZones) ? safeZones : [safeZones];
     const enriched = await Promise.all(
-      zonesArray.map(async zone => {
-        if (typeof zone === "string")
-          { 
-            const geo = await geocodeLocation(zone);
-            return { ...geo, name: zone, userInput: zone };
-          }
-        if (zone.location?.lat && zone.location?.lng) 
+      zonesArray.map(async (zone) => {
+        if (typeof zone === "string") {
+          const geo = await geocodeLocation(zone);
+          return { ...geo, name: zone, userInput: zone };
+        }
+        if (zone.location?.lat && zone.location?.lng)
           return {
             ...zone, // already geocoded
             googleName: zone.googleName || zone.name,
             name: zone.name || zone.userInput,
             userInput: zone.userInput || zone.name || zone.formattedAddress,
-        };
+          };
         if (zone.name || zone.formattedAddress) {
           const label = zone.name || zone.formattedAddress;
           const geo = await geocodeLocation(label);
-          return { ...geo, name: zone.name || zone.userInput || 
-            label, userInput: zone.userInput || label, };
+          return {
+            ...geo,
+            name: zone.name || zone.userInput || label,
+            userInput: zone.userInput || label,
+          };
         }
         throw new Error("Invalid safe zone entry");
       })
     );
 
-    await db.collection("users").doc(userId).set({ safeZones: enriched }, { merge: true });
+    await db
+      .collection("users")
+      .doc(userId)
+      .set({ safeZones: enriched }, { merge: true });
     res.json({ success: true, safeZones: enriched });
   } catch (err) {
     console.error(err);
@@ -212,7 +238,12 @@ app.post("/save-safezones", async (req, res) => {
 });
 
 app.post("/notify", async (req, res) => {
-  const { userId, message, status, subject = `Beacon update from ${userId}` } = req.body;
+  const {
+    userId,
+    message,
+    status,
+    subject = `Beacon update from ${userId}`,
+  } = req.body;
   if (!userId || !message) {
     return res.status(400).json({ error: "User ID and message required" });
   }
@@ -250,7 +281,6 @@ app.post("/notify-start", async (req, res) => {
   }
 });
 
-
 app.post("/notify-arrival", async (req, res) => {
   const { userId, destination } = req.body;
   if (!userId || !destination) {
@@ -267,42 +297,48 @@ app.post("/notify-arrival", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message || "Failed to send arrival update" });
+    res
+      .status(500)
+      .json({ error: err.message || "Failed to send arrival update" });
   }
 });
 
 app.post("/notify-status", async (req, res) => {
-  const { userId, origin, destination} = req.body;
+  const { userId, origin, destination } = req.body;
   if (!userId || !origin || !destination) {
-    return res.status(400).json({ error: "User ID, origin, and destination required" });
+    return res
+      .status(400)
+      .json({ error: "User ID, origin, and destination required" });
   }
 
   try {
     const etaInfo = await fetchEta(origin, destination);
-    const body = `Current ETA to ${destination}: ${etaInfo.etaDisplay} (${etaInfo.durationText} remaining).`;
+    const body = `I feel unsafe. Current ETA to ${destination}: ${etaInfo.etaDisplay} (${etaInfo.durationText} remaining).`;
 
     await sendContactEmails(userId, {
-      subject: "Beacon status update",
+      subject: `Beacon safety alert from ${userId}`,
       body,
-      status: "en route",
+      status: "unsafe",
     });
 
     res.json({ success: true, eta: etaInfo });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message || "Failed to send status update" });
+    res
+      .status(500)
+      .json({ error: err.message || "Failed to send status update" });
   }
 });
 
-//waiting for frontend react native expo battery status 
-statusRef.on("child_changed", async snapshot => {
+//waiting for frontend react native expo battery status
+statusRef.on("child_changed", async (snapshot) => {
   const userId = snapshot.key;
   const status = snapshot.child("state").val();
   if (status !== "dead") return;
 
   const battery = snapshot.child("battery").val();
   const address = snapshot.child("address").val();
-  
+
   const bodyLines = [
     "My phone shut off unexpectedly.",
     battery != null ? `Battery: ${(battery * 100).toFixed(0)}%` : null,
@@ -320,9 +356,6 @@ statusRef.on("child_changed", async snapshot => {
     console.error(`Failed to send phone-dead alert for ${userId}`, err);
   }
 });
-
-
-
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

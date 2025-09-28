@@ -6,6 +6,7 @@ import { Stack, SplashScreen } from "expo-router";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/AndadaPro-Regular.ttf"),
   });
@@ -18,5 +19,15 @@ export default function RootLayout() {
 
   if (!loaded && !error) return null;
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+  <Stack screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="login" options={{ headerShown: false }} />
+    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <Stack.Screen
+      name="signup"
+      options={{ title: "Create Account", headerShown: true }}
+    />
+  </Stack>
+);
+
 }
