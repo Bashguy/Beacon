@@ -320,9 +320,6 @@ statusRef.on("child_changed", async snapshot => {
   }
 });
 
-
-
-
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
