@@ -25,7 +25,7 @@ export default function ActualSplash() {
     <TouchableWithoutFeedback onPress={handlePress}>
       <View style={styles.container}>
         <Image
-          source={require("../assets/images/beacon-logo3.png")} // adjust path if needed
+          source={require("../assets/images/beacon-logo.png")} // adjust path if needed
           style={styles.logo}
           resizeMode="contain"
         />

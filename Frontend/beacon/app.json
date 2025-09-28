@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "beacon",
+    "name": "",
     "slug": "beacon",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/beacon-logo.png",
+    "icon": "./assets/images/splash-icon2.png",
     "scheme": "beacon",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/beacon-logo.png",
+      "image": "./assets/images/splash-icon2.png",
       "resizeMode": "contain",
       "backgroundColor": "#252D1F"
     },
@@ -44,7 +44,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/beacon-logo.png",
+          "image": "./assets/images/splash-icon2.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#252D1F",
