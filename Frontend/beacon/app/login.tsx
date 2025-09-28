@@ -19,13 +19,14 @@ export default function Login() {
       <Text style={styles.welcome}>Welcome!</Text>
 
       {/* Google Sign-In Button */}
-      <TouchableOpacity style={styles.googleButton}>
+      <TouchableOpacity style={styles.googleButton}
+      onPress={() => router.replace("/map")}>
         <Text style={styles.googleText}>Sign in with Google</Text>
       </TouchableOpacity>
 
       {/* Continue Button at bottom */}
       <TouchableOpacity style={styles.continueButton}
-      onPress={() => router.replace("../(tabs)/map")}>
+      onPress={() => router.replace("/map")}>
         <Text style={styles.continueText}>Continue</Text>
         
       </TouchableOpacity>

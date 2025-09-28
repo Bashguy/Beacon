@@ -18,7 +18,7 @@ export default function ContactsScreen() {
 
   const onAdd = () => {
     // TODO: router.push("/contact/new") when you add the form
-    Alert.alert("New Contact", "Hook this up to your Add Contact form.");
+    Alert.alert("New Contact", "Logic for adding a contact coming soon.");
   };
 
   const renderItem = ({ item }: { item: Contact }) => (
@@ -50,7 +50,7 @@ export default function ContactsScreen() {
           accessibilityLabel="Close"
           onPress={() => router.replace("/map")}
         >
-          <Text className="text-xl text-[#B8A792]">X</Text>
+          <Text className="text-2xl text-[#B8A792]">X</Text>
         </Pressable>
 
         {/* Header icon */}
@@ -66,7 +66,7 @@ export default function ContactsScreen() {
         {/* Content */}
         {contacts.length === 0 ? (
           <View className="flex-1 items-center justify-center ">
-            <Text className="text-center text-base text-black/40 px-6 -translate-y-20">
+            <Text className="text-center text-base text-black/40 px-6 -translate-y-10">
               Your contact list is empty.{`\n`}Contacts you add will appear
               here.
             </Text>
@@ -87,7 +87,7 @@ export default function ContactsScreen() {
           className="absolute left-6 right-6 bottom-6 h-14 bg-[#2A332A] rounded-xl items-center justify-center"
         >
           <Text className="text-[#F5F1E9] text-lg font-semibold">
-            New Contact
+            Add Contact
           </Text>
         </Pressable>
       </View>

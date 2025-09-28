@@ -17,7 +17,7 @@ import MapView, {
   MapPressEvent,
 } from "react-native-maps";
 import * as Location from "expo-location";
-import { db } from "../../firebase";
+import { db } from "../firebase";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import Constants from "expo-constants";
 import {

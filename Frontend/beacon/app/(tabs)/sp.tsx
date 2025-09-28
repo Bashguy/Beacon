@@ -18,7 +18,7 @@ export default function SafePlacesScreen() {
 
   const onAdd = () => {
     // TODO: router.push("/sp/new") when you add the form
-    Alert.alert("New Safe Place", "Hook this up to your Add Safe Place form.");
+    Alert.alert("New Safe Place", "Logic for adding a safe place coming soon.");
   };
 
   const renderItem = ({ item }: { item: SafePlace }) => (
@@ -52,7 +52,7 @@ export default function SafePlacesScreen() {
           accessibilityLabel="Close"
           onPress={() => router.replace("/map")}
         >
-          <Text className="text-3xl text-[#B8A792]">X</Text>
+          <Text className="text-2xl text-[#B8A792]">X</Text>
         </Pressable>
 
         {/* Header icon */}
@@ -67,7 +67,7 @@ export default function SafePlacesScreen() {
 
         {/* Content */}
         {places.length === 0 ? (
-          <View className="flex-1 items-center justify-center -translate-y-20">
+          <View className="flex-1 items-center justify-center -translate-y-10">
             <Text className="text-center text-base text-black/40 px-6">
               Your safe places list is empty.{`\n`}Safe places you add will
               appear here.
