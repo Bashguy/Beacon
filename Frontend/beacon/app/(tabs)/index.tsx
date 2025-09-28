@@ -1,6 +1,6 @@
 import "react-native-get-random-values";
 import { Linking, Keyboard, Modal } from "react-native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -182,10 +182,33 @@ export default function MapScreen() {
     );
   };
 
-  const beginJourney = async () => {
-    if (!hasBoth) return;
-    await setDoc(TRIP_DOC, { journeyActive: true }, { merge: true });
-  };
+  const beginJourney = useCallback(async () => {
+  if (!hasBoth) return;
+
+  // Mark journey as started in Firestore
+  setTrip((t) => ({ ...t, began: true }));
+
+  try {
+    // Make backend call to notify contacts
+    const res = await fetch("http://<your-server>/notify-start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: "sameer123", // TODO: replace with logged-in user’s ID
+        destination: trip.dest ? `${trip.dest.latitude},${trip.dest.longitude}` : "Unknown",
+        eta: trip.etaMinutes ? `${trip.etaMinutes} minutes` : "Unknown",
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.error("Failed to notify contacts:", data.error);
+    }
+  } catch (err) {
+    console.error("Error notifying contacts:", err);
+  }
+}, [hasBoth, setTrip, trip]);
+
 
   const endJourney = async () => {
     await setDoc(TRIP_DOC, { journeyActive: false }, { merge: true });
