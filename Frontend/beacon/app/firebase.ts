@@ -6,11 +6,14 @@ import {
   initializeAuth,
   GoogleAuthProvider,
   signInWithCredential,
+  signInWithRedirect,
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getReactNativePersistence } from "firebase/auth";
+
+const provider = new GoogleAuthProvider();
 
 const firebaseConfig = {
   apiKey: "AIzaSyCAh6DlzEVFqQ0DZsa3x1rXdDpTxIZxODQ",
