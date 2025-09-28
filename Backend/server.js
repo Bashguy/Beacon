@@ -313,12 +313,12 @@ app.post("/notify-status", async (req, res) => {
 
   try {
     const etaInfo = await fetchEta(origin, destination);
-    const body = `Current ETA to ${destination}: ${etaInfo.etaDisplay} (${etaInfo.durationText} remaining).`;
+    const body = `I feel unsafe. Current ETA to ${destination}: ${etaInfo.etaDisplay} (${etaInfo.durationText} remaining).`;
 
     await sendContactEmails(userId, {
-      subject: "Beacon status update",
+      subject: `Beacon safety alert from ${userId}`,
       body,
-      status: "en route",
+      status: "unsafe",
     });
 
     res.json({ success: true, eta: etaInfo });

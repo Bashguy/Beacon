@@ -1,19 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const provider = new GoogleAuthProvider();
-
-signInWithPopup(auth, provider)
-  .then((result) => {
-    console.log("User signed in:", result.user);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
 
 const firebaseConfig = {
   apiKey: "AIzaSyASHBhLRzE8StJh7R-iDBKXPxbtZqIS1Gg",
