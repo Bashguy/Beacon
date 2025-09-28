@@ -89,7 +89,7 @@ export default function SafePlacesScreen() {
           className="absolute left-6 right-6 bottom-6 h-14 bg-[#2A332A] rounded-xl items-center justify-center"
         >
           <Text className="text-[#F5F1E9] text-lg font-semibold">
-            New Safe Place
+            Add Safe Place
           </Text>
         </Pressable>
       </View>
