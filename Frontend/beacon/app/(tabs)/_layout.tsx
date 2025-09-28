@@ -6,6 +6,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerTitle: "Beacon",
+        headerStyle: { backgroundColor: "#F5F1E9" },
         tabBarActiveTintColor: "#2A332A",
         tabBarInactiveTintColor: "#9AA39A",
         tabBarStyle: { backgroundColor: "#F5F1E9" },
